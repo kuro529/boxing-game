@@ -8,7 +8,7 @@
 *{box-sizing:border-box}
 body{margin:0;background:#12161f;color:#fff;font-family:system-ui,-apple-system,sans-serif;
 -webkit-user-select:none;user-select:none;touch-action:manipulation;
-display:flex;flex-direction:column;height:100vh;overflow:hidden}
+display:flex;flex-direction:column;height:100dvh;overflow:hidden}
 header{padding:10px 12px 6px}
 .row{display:flex;align-items:center;gap:8px;margin-bottom:5px}
 .lbl{font-size:11px;width:34px;opacity:.75}
@@ -19,7 +19,8 @@ header{padding:10px 12px 6px}
 #stF{background:linear-gradient(#ffe066,#e8a100)}
 #stBar{height:8px;border-width:1px}
 #info{text-align:center;font-size:13px;letter-spacing:2px;opacity:.9}
-#ring{flex:1;position:relative;display:flex;justify-content:space-between;
+#ring{flex:1 1 auto;min-height:0;max-height:250px;position:relative;
+display:flex;justify-content:space-between;
 align-items:flex-end;padding:0 4px 26px;
 background:radial-gradient(60% 70% at 50% 40%,#2b3446,#141a26 70%)}
 #ring::after{content:"";position:absolute;left:0;right:0;bottom:0;height:26px;
@@ -60,8 +61,6 @@ font-weight:800;letter-spacing:3px;text-shadow:0 3px 0 #000;pointer-events:none;
 transition:opacity .15s}
 #msg.on{opacity:1}
 #ctrl{display:flex;gap:8px;padding:10px 10px calc(10px + env(safe-area-inset-bottom,0px))}
-#ctrl button{flex:1;padding:20px 0;font-size:17px;font-weight:700;color:#fff;
-border:none;border-radius:14px;background:#2f3murky}
 .btn{flex:1;padding:20px 0;font-size:17px;font-weight:700;color:#fff;border:none;
 border-radius:14px;background:#38445c;box-shadow:0 4px 0 #1d2534}
 .btn:active{transform:translateY(3px);box-shadow:0 1px 0 #1d2534}
