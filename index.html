@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>BOXING</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#12161f;color:#fff;font-family:system-ui,-apple-system,sans-serif;
+-webkit-user-select:none;user-select:none;touch-action:manipulation;
+display:flex;flex-direction:column;height:100vh;overflow:hidden}
+header{padding:10px 12px 6px}
+.row{display:flex;align-items:center;gap:8px;margin-bottom:5px}
+.lbl{font-size:11px;width:34px;opacity:.75}
+.bar{flex:1;height:14px;background:#000;border:2px solid #ffffff33;border-radius:8px;overflow:hidden}
+.bar>i{display:block;height:100%;width:100%;transition:width .15s}
+#phpF{background:linear-gradient(#6cf,#1878d4)}
+#chpF{background:linear-gradient(#ff9a7a,#d32020)}
+#stF{background:linear-gradient(#ffe066,#e8a100)}
+#stBar{height:8px;border-width:1px}
+#info{text-align:center;font-size:13px;letter-spacing:2px;opacity:.9}
+#ring{flex:1;position:relative;display:flex;justify-content:space-between;
+align-items:flex-end;padding:0 4px 26px;
+background:radial-gradient(60% 70% at 50% 40%,#2b3446,#141a26 70%)}
+#ring::after{content:"";position:absolute;left:0;right:0;bottom:0;height:26px;
+background:#3a2a22;border-top:3px solid #6b4a37}
+.side{position:relative}
+.side.cpu{transform:scaleX(-1)}
+.boxer{position:relative;width:118px;height:196px}
+.head{position:absolute;left:24px;top:2px;width:54px;height:54px;border-radius:50%;
+background:#e6b287;border:3px solid #00000033;transition:transform .12s;z-index:2}
+.head::before{content:"";position:absolute;left:30px;top:20px;width:8px;height:8px;
+border-radius:50%;background:#333}
+.hair{position:absolute;left:22px;top:0;width:58px;height:22px;border-radius:26px 26px 0 0;
+background:#2a2a2a;z-index:3}
+.torso{position:absolute;left:12px;top:50px;width:80px;height:100px;
+border-radius:26px 26px 12px 12px;background:#1e72c8;border:3px solid #00000033}
+.cpu .torso{background:#c62828}
+.legs{position:absolute;left:22px;top:144px;width:60px;height:48px;
+border-radius:10px;background:#2b3345}
+.glove{position:absolute;width:38px;height:38px;border-radius:50%;
+background:#e23b3b;border:3px solid #00000044;z-index:4;transition:transform .09s ease-out}
+.cpu .glove{background:#3b6ee2}
+.gl{left:58px;top:60px}
+.gr{left:66px;top:104px}
+.boxer.pl .gl{transform:translate(52px,-6px) scale(1.15)}
+.boxer.pr .gr{transform:translate(64px,-34px) scale(1.25)}
+.boxer.gd .gl{transform:translate(-8px,-44px)}
+.boxer.gd .gr{transform:translate(-16px,-58px)}
+.boxer.hit{animation:sh .25s}
+.boxer.hit .head{transform:translateX(-10px) rotate(-14deg)}
+@keyframes sh{0%{transform:translateX(0)}30%{transform:translateX(-10px)}
+60%{transform:translateX(5px)}100%{transform:translateX(0)}}
+.boxer.ko{transform:rotate(-10deg) translateY(16px);transition:transform .4s}
+.boxer.ko .head{transform:translate(-18px,-74px) rotate(32deg);
+transition:transform .45s cubic-bezier(.3,-0.4,.5,1.4)}
+.boxer.ko .hair{opacity:0}
+#msg{position:absolute;left:0;right:0;top:34%;text-align:center;font-size:34px;
+font-weight:800;letter-spacing:3px;text-shadow:0 3px 0 #000;pointer-events:none;opacity:0;
+transition:opacity .15s}
+#msg.on{opacity:1}
+#ctrl{display:flex;gap:8px;padding:10px 10px calc(10px + env(safe-area-inset-bottom,0px))}
+#ctrl button{flex:1;padding:20px 0;font-size:17px;font-weight:700;color:#fff;
+border:none;border-radius:14px;background:#2f3murky}
+.btn{flex:1;padding:20px 0;font-size:17px;font-weight:700;color:#fff;border:none;
+border-radius:14px;background:#38445c;box-shadow:0 4px 0 #1d2534}
+.btn:active{transform:translateY(3px);box-shadow:0 1px 0 #1d2534}
+#bL{background:#2b6fd0;box-shadow:0 4px 0 #17406f}
+#bR{background:#d04a2b;box-shadow:0 4px 0 #7a2716}
+#over{position:absolute;inset:0;background:#000000cc;display:flex;
+flex-direction:column;align-items:center;justify-content:center;gap:18px;z-index:9}
+#over h1{margin:0;font-size:30px;letter-spacing:4px}
+#over p{margin:0;font-size:13px;opacity:.8;text-align:center;line-height:1.7}
+#start{padding:16px 40px;font-size:18px;font-weight:700;border:none;border-radius:999px;
+background:#ffd24a;color:#222}
+</style>
+</head>
+<body>
+<header>
+  <div class="row"><span class="lbl">YOU</span>
+    <div class="bar"><i id="phpF"></i></div></div>
+  <div class="row"><span class="lbl"></span>
+    <div class="bar" id="stBar"><i id="stF"></i></div></div>
+  <div class="row"><span class="lbl">CPU</span>
+    <div class="bar"><i id="chpF"></i></div></div>
+  <div id="info">ROUND 1　　00:45</div>
+</header>
+
+<div id="ring">
+  <div class="side"><div class="boxer idle" id="pB">
+    <div class="hair"></div><div class="head"></div>
+    <div class="torso"></div><div class="legs"></div>
+    <div class="glove gl"></div><div class="glove gr"></div>
+  </div></div>
+  <div class="side cpu"><div class="boxer idle" id="cB">
+    <div class="hair"></div><div class="head"></div>
+    <div class="torso"></div><div class="legs"></div>
+    <div class="glove gl"></div><div class="glove gr"></div>
+  </div></div>
+  <div id="msg"></div>
+  <div id="over">
+    <h1>BOXING</h1>
+    <p>左・右パンチとガードの3ボタン<br>3ラウンド45秒　先にKOした方が勝ち</p>
+    <button id="start">試合開始</button>
+  </div>
+</div>
+
+<div id="ctrl">
+  <button class="btn" id="bL">左パンチ</button>
+  <button class="btn" id="bG">ガード</button>
+  <button class="btn" id="bR">右パンチ</button>
+</div>
+
+<script>
+const $=i=>document.getElementById(i);
+const P={hp:100,st:'idle',until:0,cd:0,stam:100,node:$('pB')};
+const C={hp:100,st:'idle',until:0,next:0,node:$('cB')};
+let running=false,round=1,time=45,over=false;
+
+function draw(f){f.node.className='boxer '+f.st;}
+function bars(){
+  $('phpF').style.width=P.hp+'%';
+  $('chpF').style.width=C.hp+'%';
+  $('stF').style.width=P.stam+'%';
+}
+function info(){
+  const s=Math.max(0,Math.ceil(time));
+  $('info').textContent='ROUND '+round+'　　00:'+String(s).padStart(2,'0');
+}
+let msgT;
+function msg(t,ms){
+  $('msg').textContent=t;$('msg').classList.add('on');
+  clearTimeout(msgT);msgT=setTimeout(()=>$('msg').classList.remove('on'),ms||700);
+}
+
+function hit(t,dmg,src){
+  if(!running||t.st==='ko')return;
+  let d=dmg;
+  if(t.st==='gd'){d*=0.18;}
+  else if(t.st==='pl'||t.st==='pr'){d*=1.5;msg(src===P?'カウンター!':'もらった!',600);}
+  t.hp=Math.max(0,t.hp-d);
+  if(t.st!=='gd'){
+    t.st='hit';t.until=performance.now()+(d>10?330:200);draw(t);
+  }
+  bars();
+  if(t.hp<=0)ko(t);
+}
+function ko(t){
+  running=false;over=true;
+  t.st='ko';draw(t);
+  setTimeout(()=>finish(t===C?'K.O. 勝利!':'K.O. 負け...'),500);
+}
+function finish(text){
+  $('over').style.display='flex';
+  $('over').innerHTML='<h1>'+text+'</h1><button id="start">もう一度</button>';
+  $('start').onclick=()=>location.reload();
+}
+
+function punch(type){
+  if(!running||P.st!=='idle')return;
+  const now=performance.now();
+  if(now<P.cd)return;
+  const heavy=(type==='pr');
+  P.st=type;P.until=now+(heavy?420:280);draw(P);
+  P.cd=P.until+(heavy?160:60);
+  if(C.st==='idle'&&Math.random()<(C.hp<40?0.42:0.27)){
+    C.st='gd';C.until=now+(heavy?420:300);draw(C);C.next=C.until+150;
+  }
+  setTimeout(()=>{if(P.st===type)hit(C,heavy?14:6,P);},heavy?200:110);
+}
+function guard(){
+  if(!running||P.st!=='idle')return;
+  const now=performance.now();
+  if(now<P.cd||P.stam<25)return;
+  P.stam-=30;P.st='gd';P.until=now+600;P.cd=P.until+90;draw(P);bars();
+}
+
+function ai(now){
+  if(C.st!=='idle'||now<C.next)return;
+  const ag=C.hp<40?1:0;
+  const r=Math.random();
+  if(r<0.62+0.12*ag){
+    const heavy=Math.random()<0.35;
+    const type=heavy?'pr':'pl';
+    const wind=heavy?360-80*ag:250-50*ag;
+    const dur=heavy?620:460;
+    C.st=type;C.until=now+dur;draw(C);
+    setTimeout(()=>{if(C.st===type)hit(P,heavy?13:6,C);},wind);
+    C.next=now+dur+(heavy?420:300)+Math.random()*350-ag*160;
+  }else if(r<0.82){
+    C.st='gd';C.until=now+450;draw(C);C.next=C.until+200;
+  }else{
+    C.next=now+300+Math.random()*450;
+  }
+}
+
+function endRound(){
+  running=false;
+  if(round>=3){
+    setTimeout(()=>finish(P.hp>C.hp?'判定勝ち!':P.hp<C.hp?'判定負け...':'ドロー'),300);
+    return;
+  }
+  msg('ROUND '+round+' 終了',1200);
+  setTimeout(()=>{
+    round++;time=45;
+    P.hp=Math.min(100,P.hp+20);C.hp=Math.min(100,C.hp+20);
+    P.stam=100;P.st='idle';C.st='idle';draw(P);draw(C);
+    bars();info();msg('ROUND '+round,900);
+    running=true;
+  },1500);
+}
+
+setInterval(()=>{
+  const now=performance.now();
+  [P,C].forEach(f=>{
+    if(f.st!=='idle'&&f.st!=='ko'&&now>f.until){f.st='idle';draw(f);}
+  });
+  if(P.st!=='gd'&&P.stam<100){P.stam=Math.min(100,P.stam+1.2);bars();}
+  if(running){
+    ai(now);
+    time-=0.04;info();
+    if(time<=0)endRound();
+  }
+},40);
+
+$('bL').addEventListener('pointerdown',e=>{e.preventDefault();punch('pl')});
+$('bR').addEventListener('pointerdown',e=>{e.preventDefault();punch('pr')});
+$('bG').addEventListener('pointerdown',e=>{e.preventDefault();guard()});
+$('start').onclick=()=>{
+  $('over').style.display='none';running=true;msg('FIGHT!',800);
+};
+bars();info();
+</script>
+</body>
+</html>
