@@ -48,6 +48,10 @@ background:#e23b3b;border:3px solid #00000044;z-index:4;transition:transform .09
 .boxer.pr .gr{transform:translate(64px,-34px) scale(1.25)}
 .boxer.gd .gl{transform:translate(-8px,-44px)}
 .boxer.gd .gr{transform:translate(-16px,-58px)}
+.boxer.sc{animation:chg .12s linear infinite}
+@keyframes chg{50%{transform:translateX(-3px)}}
+.boxer.sc .gr{transform:translate(-34px,-14px) scale(1.15);box-shadow:0 0 16px 6px #ffd24a}
+.boxer.sp .gr{transform:translate(74px,-42px) scale(1.5);box-shadow:0 0 16px 6px #ffd24a}
 .boxer.hit{animation:sh .25s}
 .boxer.hit .head{transform:translateX(-10px) rotate(-14deg)}
 @keyframes sh{0%{transform:translateX(0)}30%{transform:translateX(-10px)}
@@ -69,11 +73,15 @@ font-weight:800;letter-spacing:3px;text-shadow:0 3px 0 #000;pointer-events:none;
 transition:opacity .15s}
 #msg.on{opacity:1}
 #ctrl{display:flex;gap:8px;padding:10px 10px calc(10px + env(safe-area-inset-bottom,0px))}
-.btn{flex:1;padding:20px 0;font-size:17px;font-weight:700;color:#fff;border:none;
-border-radius:14px;background:#38445c;box-shadow:0 4px 0 #1d2534}
+.btn{flex:1;min-height:64px;padding:12px 0;font-size:17px;font-weight:700;color:#fff;border:none;
+border-radius:14px;background:#38445c;box-shadow:0 4px 0 #1d2534;transition:opacity .2s}
 .btn:active{transform:translateY(3px);box-shadow:0 1px 0 #1d2534}
-#bL{background:#2b6fd0;box-shadow:0 4px 0 #17406f}
-#bR{background:#d04a2b;box-shadow:0 4px 0 #7a2716}
+.btn small{display:block;font-size:10px;font-weight:600;margin-top:3px;opacity:.9}
+#bP{background:#d04a2b;box-shadow:0 4px 0 #7a2716}
+#bS{background:#e0a81c;box-shadow:0 4px 0 #7a5a0c;color:#221a00}
+#bS.off{opacity:.3}
+#bS.ready{animation:glow 1s ease-in-out infinite}
+@keyframes glow{50%{filter:brightness(1.35)}}
 #over{position:absolute;inset:0;background:#000000cc;display:flex;
 flex-direction:column;align-items:center;justify-content:center;gap:18px;z-index:9}
 #over h1{margin:0;font-size:30px;letter-spacing:4px}
@@ -109,24 +117,26 @@ background:#ffd24a;color:#222}
   <div id="msg"></div>
   <div id="over">
     <h1>BOXING</h1>
-    <p>通常ヒット2 / カウンター10<br>ガードされると2秒めまいで操作不能<br>3ラウンド各90秒</p>
+    <p>パンチ2 / カウンター6+めまい<br>ガードされると1秒めまい<br>渾身15(命中10回かガード2回で解放)<br>3ラウンド各90秒</p>
     <button id="start">試合開始</button>
   </div>
 </div>
 
 <div id="ctrl">
-  <button class="btn" id="bL">左パンチ</button>
   <button class="btn" id="bG">ガード</button>
-  <button class="btn" id="bR">右パンチ</button>
+  <button class="btn off" id="bS">渾身<small id="sInfo">命中0/10 防御0/2</small></button>
+  <button class="btn" id="bP">パンチ</button>
 </div>
 
 <script>
 const $=i=>document.getElementById(i);
-const P={hp:100,st:'idle',until:0,cd:0,stam:100,node:$('pB')};
-const C={hp:100,st:'idle',until:0,next:0,node:$('cB')};
-let running=false,round=1,time=90;
-
-const DMG=2,COUNTER=10,DIZZY=2000,ROUND_TIME=90;
+const DMG=2,COUNTER=6,SMASH=15,DIZZY=1000,ROUND_TIME=90;
+const NEED_HIT=10,NEED_GUARD=2;
+function fighter(node){return{hp:100,st:'idle',until:0,cd:0,next:0,stam:100,
+  hits:0,guards:0,used:false,alt:false,node:node};}
+const P=fighter($('pB'));
+const C=fighter($('cB'));
+let running=false,round=1,time=ROUND_TIME;
 
 function draw(f){f.node.className='boxer '+f.st;}
 function bars(){
@@ -143,31 +153,49 @@ function msg(t,ms){
   $('msg').textContent=t;$('msg').classList.add('on');
   clearTimeout(msgT);msgT=setTimeout(()=>$('msg').classList.remove('on'),ms||700);
 }
+function canSmash(f){return !f.used&&(f.hits>=NEED_HIT||f.guards>=NEED_GUARD);}
+function updBtn(){
+  const ok=canSmash(P);
+  $('bS').classList.toggle('off',!ok);
+  $('bS').classList.toggle('ready',ok);
+  $('sInfo').textContent=P.used?'使用済み':ok?'OK!':
+    '命中'+Math.min(P.hits,NEED_HIT)+'/'+NEED_HIT+' 防御'+Math.min(P.guards,NEED_GUARD)+'/'+NEED_GUARD;
+}
+function ready(f){return running&&f.st==='idle'&&performance.now()>=f.cd;}
 
 function dizzy(f){
   const now=performance.now();
   f.st='dz';f.until=now+DIZZY;draw(f);
-  if(f===P)P.cd=f.until;else C.next=f.until+200;
+  f.cd=f.until;f.next=f.until+200;
 }
 
-function hit(t,src){
+function hit(t,src,kind){
   if(!running||t.st==='ko')return;
   const now=performance.now();
   if(t.st==='gd'){
+    t.guards++;
     msg(src===P?'ガードされた!':'ガード成功!',600);
     dizzy(src);
+    updBtn();
     return;
   }
-  let d=DMG;
-  if(t.st==='pl'||t.st==='pr'){
-    d=COUNTER;
-    msg(src===P?'カウンター!':'カウンター被弾!',700);
+  const counter=['pl','pr','sc','sp'].includes(t.st);
+  let d;
+  if(kind==='s'){
+    d=SMASH;
+    msg(src===P?'渾身ヒット!':'渾身被弾!',800);
+  }else{
+    src.hits++;
+    d=counter?COUNTER:DMG;
+    if(counter)msg(src===P?'カウンター!':'カウンター被弾!',700);
   }
   t.hp=Math.max(0,t.hp-d);
-  if(t.st!=='dz'){
-    t.st='hit';t.until=now+(d>=COUNTER?330:170);draw(t);
+  if(counter){
+    dizzy(t);
+  }else if(t.st!=='dz'){
+    t.st='hit';t.until=now+(kind==='s'?420:170);draw(t);
   }
-  bars();
+  bars();updBtn();
   if(t.hp<=0)ko(t);
 }
 function ko(t){
@@ -181,35 +209,61 @@ function finish(text){
   $('start').onclick=()=>location.reload();
 }
 
-function punch(type){
-  if(!running||P.st!=='idle')return;
+function punch(){
+  if(!ready(P))return;
   const now=performance.now();
-  if(now<P.cd)return;
+  P.alt=!P.alt;
+  const type=P.alt?'pl':'pr';
   P.st=type;P.until=now+300;draw(P);
   P.cd=P.until+60;
   if(C.st==='idle'&&Math.random()<(C.hp<40?0.36:0.24)){
     C.st='gd';C.until=now+320;draw(C);C.next=C.until+150;
   }
-  setTimeout(()=>{if(P.st===type)hit(C,P);},130);
+  setTimeout(()=>{if(P.st===type)hit(C,P,'n');},130);
+}
+function smash(){
+  if(!ready(P)||!canSmash(P))return;
+  const now=performance.now();
+  P.used=true;updBtn();
+  P.st='sc';P.until=now+1000;draw(P);
+  P.cd=now+260+380+100;
+  if(C.st==='idle'&&Math.random()<0.4){
+    C.st='gd';C.until=now+520;draw(C);C.next=C.until+150;
+  }
+  setTimeout(()=>{
+    if(P.st!=='sc')return;
+    P.st='sp';P.until=performance.now()+380;draw(P);
+    setTimeout(()=>{if(P.st==='sp')hit(C,P,'s');},120);
+  },260);
 }
 function guard(){
-  if(!running||P.st!=='idle')return;
+  if(!ready(P)||P.stam<25)return;
   const now=performance.now();
-  if(now<P.cd||P.stam<25)return;
   P.stam-=30;P.st='gd';P.until=now+600;P.cd=P.until+90;draw(P);bars();
 }
 
+function cpuSmash(now,ag){
+  C.used=true;
+  C.st='sc';C.until=now+1200;draw(C);
+  const charge=480-100*ag;
+  setTimeout(()=>{
+    if(C.st!=='sc')return;
+    C.st='sp';C.until=performance.now()+420;draw(C);
+    setTimeout(()=>{if(C.st==='sp')hit(P,C,'s');},120);
+  },charge);
+  C.next=now+charge+420+500;
+}
 function ai(now){
   if(C.st!=='idle'||now<C.next)return;
   const ag=C.hp<40?1:0;
+  if(canSmash(C)&&(P.st==='dz'||Math.random()<0.3)){cpuSmash(now,ag);return;}
   const r=Math.random();
-  if(r<0.62+0.12*ag){
+  if(P.st==='dz'||r<0.62+0.12*ag){
     const type=Math.random()<0.5?'pl':'pr';
     const wind=250-50*ag;
-    const dur=460;
-    C.st=type;C.until=now+dur;draw(C);
-    setTimeout(()=>{if(C.st===type)hit(P,C);},wind);
-    C.next=now+dur+300+Math.random()*350-ag*160;
+    C.st=type;C.until=now+460;draw(C);
+    setTimeout(()=>{if(C.st===type)hit(P,C,'n');},wind);
+    C.next=now+460+(P.st==='dz'?80:300+Math.random()*350-ag*160);
   }else if(r<0.82){
     C.st='gd';C.until=now+450;draw(C);C.next=C.until+200;
   }else{
@@ -226,9 +280,13 @@ function endRound(){
   msg('ROUND '+round+' 終了',1200);
   setTimeout(()=>{
     round++;time=ROUND_TIME;
-    P.hp=Math.min(100,P.hp+10);C.hp=Math.min(100,C.hp+10);
-    P.stam=100;P.st='idle';C.st='idle';draw(P);draw(C);
-    bars();info();msg('ROUND '+round,900);
+    [P,C].forEach(f=>{
+      f.hp=Math.min(100,f.hp+10);
+      f.hits=0;f.guards=0;f.used=false;
+      f.st='idle';f.cd=0;f.next=0;draw(f);
+    });
+    P.stam=100;
+    bars();info();updBtn();msg('ROUND '+round,900);
     running=true;
   },1500);
 }
@@ -246,13 +304,13 @@ setInterval(()=>{
   }
 },40);
 
-$('bL').addEventListener('pointerdown',e=>{e.preventDefault();punch('pl')});
-$('bR').addEventListener('pointerdown',e=>{e.preventDefault();punch('pr')});
 $('bG').addEventListener('pointerdown',e=>{e.preventDefault();guard()});
+$('bS').addEventListener('pointerdown',e=>{e.preventDefault();smash()});
+$('bP').addEventListener('pointerdown',e=>{e.preventDefault();punch()});
 $('start').onclick=()=>{
   $('over').style.display='none';running=true;msg('FIGHT!',800);
 };
-bars();info();
+bars();info();updBtn();
 </script>
 </body>
 </html>
