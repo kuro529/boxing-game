@@ -2,12 +2,13 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>BOXING</title>
 <style>
-*{box-sizing:border-box}
+*{box-sizing:border-box;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+html{touch-action:manipulation}
 body{margin:0;background:#12161f;color:#fff;font-family:system-ui,-apple-system,sans-serif;
--webkit-user-select:none;user-select:none;touch-action:manipulation;
+-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;touch-action:manipulation;
 display:flex;flex-direction:column;justify-content:space-between;height:100dvh;overflow:hidden}
 .panel{padding:6px 10px}
 #pan2{padding-top:calc(6px + env(safe-area-inset-top,0px))}
@@ -180,6 +181,15 @@ const P=fighter($('pB'),1,'青',BLUE);
 const C=fighter($('cB'),2,'赤',RED);
 P.opp=C;C.opp=P;
 let running=false,round=1,time=ROUND_TIME,mode='cpu';
+
+document.addEventListener('gesturestart',e=>e.preventDefault(),{passive:false});
+document.addEventListener('dblclick',e=>e.preventDefault(),{passive:false});
+let lastTouch=0;
+document.addEventListener('touchend',e=>{
+  const now=Date.now();
+  if(now-lastTouch<350&&!e.target.closest('.mode'))e.preventDefault();
+  lastTouch=now;
+},{passive:false});
 
 function draw(f){f.node.className='boxer '+f.st;}
 function bars(){
