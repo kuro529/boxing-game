@@ -34,14 +34,19 @@ touch-action:none}
 .btn.s.off{opacity:.3}
 .btn.s.ready{animation:glow 1s ease-in-out infinite}
 @keyframes glow{50%{filter:brightness(1.35)}}
-#ring{flex:1 1 auto;min-height:0;max-height:270px;position:relative;
-display:flex;justify-content:space-between;
-align-items:flex-end;padding:0 4px 22px;
+#ring{flex:1 1 auto;min-height:0;max-height:270px;position:relative;overflow:hidden;
 background:radial-gradient(60% 70% at 50% 40%,#2b3446,#141a26 70%)}
-#ring::after{content:"";position:absolute;left:0;right:0;bottom:0;height:22px;
+body.vs #ring{max-height:none}
+#stage{position:absolute;left:0;top:0;width:100%;height:100%;
+display:flex;justify-content:space-between;align-items:flex-end;padding:0 4px 22px}
+#stage::after{content:"";position:absolute;left:0;right:0;bottom:0;height:22px;
 background:#3a2a22;border-top:3px solid #6b4a37}
+body.vs #stage{align-items:center;padding:0 10px}
+body.vs #stage::after{display:none}
 .side{position:relative;transform:scale(.82);transform-origin:50% 100%}
 .side.cpu{transform:scale(-.82,.82)}
+body.vs .side{transform:scale(.95);transform-origin:50% 50%}
+body.vs .side.cpu{transform:scale(-.95,.95)}
 .boxer{position:relative;width:118px;height:196px}
 .head{position:absolute;left:24px;top:2px;width:54px;height:54px;border-radius:50%;
 background:#e6b287;border:3px solid #00000033;transition:transform .12s;z-index:2}
@@ -85,17 +90,18 @@ transition:transform .45s cubic-bezier(.3,-0.4,.5,1.4)}
 .boxer.ko .hair{opacity:0}
 .info{position:absolute;left:0;right:0;text-align:center;font-size:12px;
 letter-spacing:2px;opacity:.85;z-index:5}
-#info1{top:30px}
-#info2{top:6px;transform:rotate(180deg)}
+#info1{top:8px}
+#info2{display:none}
+body.vs #info1{top:auto;bottom:6px}
+body.vs #info2{display:block;top:6px;transform:rotate(180deg)}
 .msg{position:absolute;left:0;right:0;text-align:center;font-size:26px;font-weight:800;
 letter-spacing:2px;text-shadow:0 3px 0 #000;pointer-events:none;opacity:0;
 transition:opacity .15s;z-index:7}
 .msg.on{opacity:1}
-#msg1{top:46%}
-#msg2{top:16%;transform:rotate(180deg)}
-body:not(.vs) #info2,body:not(.vs) #msg2{display:none}
-body:not(.vs) #info1{top:8px}
-body:not(.vs) #msg1{top:32%}
+#msg1{top:32%}
+#msg2{display:none}
+body.vs #msg1{top:auto;bottom:22%}
+body.vs #msg2{display:block;top:22%;transform:rotate(180deg)}
 #over{position:fixed;inset:0;background:#000000d9;display:flex;
 flex-direction:column;align-items:center;justify-content:center;gap:16px;z-index:20}
 #over h1{margin:0;font-size:30px;letter-spacing:4px}
@@ -122,20 +128,22 @@ background:#ffd24a;color:#222}
 </div>
 
 <div id="ring">
+  <div id="stage">
+    <div class="side"><div class="boxer idle" id="pB">
+      <div class="dzm"><b>✦</b><b>✦</b></div>
+      <div class="hair"></div><div class="head"></div>
+      <div class="torso"></div><div class="legs"></div>
+      <div class="glove gl"></div><div class="glove gr"></div>
+    </div></div>
+    <div class="side cpu"><div class="boxer idle" id="cB">
+      <div class="dzm"><b>✦</b><b>✦</b></div>
+      <div class="hair"></div><div class="head"></div>
+      <div class="torso"></div><div class="legs"></div>
+      <div class="glove gl"></div><div class="glove gr"></div>
+    </div></div>
+  </div>
   <div class="info" id="info2"></div>
   <div class="info" id="info1"></div>
-  <div class="side"><div class="boxer idle" id="pB">
-    <div class="dzm"><b>✦</b><b>✦</b></div>
-    <div class="hair"></div><div class="head"></div>
-    <div class="torso"></div><div class="legs"></div>
-    <div class="glove gl"></div><div class="glove gr"></div>
-  </div></div>
-  <div class="side cpu"><div class="boxer idle" id="cB">
-    <div class="dzm"><b>✦</b><b>✦</b></div>
-    <div class="hair"></div><div class="head"></div>
-    <div class="torso"></div><div class="legs"></div>
-    <div class="glove gl"></div><div class="glove gr"></div>
-  </div></div>
   <div class="msg" id="msg2"></div>
   <div class="msg" id="msg1"></div>
 </div>
@@ -165,10 +173,11 @@ background:#ffd24a;color:#222}
 const $=i=>document.getElementById(i);
 const DMG=2,COUNTER=6,SMASH=15,DIZZY=1000,ROUND_TIME=90;
 const NEED_HIT=10,NEED_GUARD=2;
-function fighter(node,id,name){return{hp:100,st:'idle',until:0,cd:0,next:0,stam:100,
-  hits:0,guards:0,used:false,alt:false,node:node,id:id,name:name};}
-const P=fighter($('pB'),1,'青');
-const C=fighter($('cB'),2,'赤');
+const BLUE='#5cc0ff',RED='#ff6a50';
+function fighter(node,id,name,color){return{hp:100,st:'idle',until:0,cd:0,next:0,stam:100,
+  hits:0,guards:0,used:false,alt:false,node:node,id:id,name:name,color:color};}
+const P=fighter($('pB'),1,'青',BLUE);
+const C=fighter($('cB'),2,'赤',RED);
 P.opp=C;C.opp=P;
 let running=false,round=1,time=ROUND_TIME,mode='cpu';
 
@@ -184,9 +193,21 @@ function info(){
   const t='ROUND '+round+'　　'+Math.floor(s/60)+':'+String(s%60).padStart(2,'0');
   $('info1').textContent=t;$('info2').textContent=t;
 }
+function fitStage(){
+  const r=$('ring'),s=$('stage');
+  if(mode==='vs'){
+    const W=r.clientWidth,H=r.clientHeight;
+    s.style.cssText='width:'+H+'px;height:'+W+'px;left:'+((W-H)/2)+'px;top:'+((H-W)/2)+
+      'px;transform:rotate(-90deg)';
+  }else{
+    s.style.cssText='';
+  }
+}
 let msgT;
-function msg(t,ms){
-  ['msg1','msg2'].forEach(k=>{$(k).textContent=t;$(k).classList.add('on');});
+function msg(t,ms,color){
+  ['msg1','msg2'].forEach(k=>{
+    $(k).textContent=t;$(k).style.color=color||'#fff';$(k).classList.add('on');
+  });
   clearTimeout(msgT);
   msgT=setTimeout(()=>{$('msg1').classList.remove('on');$('msg2').classList.remove('on');},ms||700);
 }
@@ -227,7 +248,7 @@ function hit(t,src,kind){
   }else{
     src.hits++;
     d=counter?COUNTER:DMG;
-    if(counter)say(src===P?'カウンター!':'カウンター被弾!',src.name+' カウンター!',700);
+    if(counter)msg('カウンター!',700,src.color);
   }
   t.hp=Math.max(0,t.hp-d);
   if(counter){
@@ -365,9 +386,11 @@ function start(m){
   document.body.classList.toggle('vs',m==='vs');
   $('n1').textContent=m==='vs'?'BLUE':'YOU';
   $('n2').textContent=m==='vs'?'RED':'CPU';
+  fitStage();
   $('over').style.display='none';
   running=true;msg('FIGHT!',800);
 }
+window.addEventListener('resize',fitStage);
 $('mCpu').onclick=()=>start('cpu');
 $('mVs').onclick=()=>start('vs');
 bars();info();updBtn();
