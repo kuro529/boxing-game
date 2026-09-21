@@ -8,25 +8,40 @@
 *{box-sizing:border-box}
 body{margin:0;background:#12161f;color:#fff;font-family:system-ui,-apple-system,sans-serif;
 -webkit-user-select:none;user-select:none;touch-action:manipulation;
-display:flex;flex-direction:column;height:100dvh;overflow:hidden}
-header{padding:10px 12px 6px}
+display:flex;flex-direction:column;justify-content:space-between;height:100dvh;overflow:hidden}
+.panel{padding:6px 10px}
+#pan2{padding-top:calc(6px + env(safe-area-inset-top,0px))}
+#pan1{padding-bottom:calc(8px + env(safe-area-inset-bottom,0px))}
+body.vs #pan2{transform:rotate(180deg);padding-top:6px;
+padding-bottom:calc(8px + env(safe-area-inset-top,0px))}
+body:not(.vs) #pan2 .ctrl,body:not(.vs) #pan2 .strow{display:none}
 .row{display:flex;align-items:center;gap:8px;margin-bottom:5px}
 .lbl{font-size:11px;width:34px;opacity:.75}
 .bar{flex:1;height:14px;background:#000;border:2px solid #ffffff33;border-radius:8px;overflow:hidden}
 .bar>i{display:block;height:100%;width:100%;transition:width .15s}
-#phpF{background:linear-gradient(#6cf,#1878d4)}
-#chpF{background:linear-gradient(#ff9a7a,#d32020)}
-#stF{background:linear-gradient(#ffe066,#e8a100)}
-#stBar{height:8px;border-width:1px}
-#info{text-align:center;font-size:13px;letter-spacing:2px;opacity:.9}
-#ring{flex:1 1 auto;min-height:0;max-height:250px;position:relative;
+.bar.st{height:8px;border-width:1px}
+.hp.blue{background:linear-gradient(#6cf,#1878d4)}
+.hp.red{background:linear-gradient(#ff9a7a,#d32020)}
+.stf{background:linear-gradient(#ffe066,#e8a100)}
+.ctrl{display:flex;gap:8px;margin-top:6px}
+.btn{flex:1;min-height:62px;padding:10px 0;font-size:17px;font-weight:700;color:#fff;border:none;
+border-radius:14px;background:#38445c;box-shadow:0 4px 0 #1d2534;transition:opacity .2s;
+touch-action:none}
+.btn:active{transform:translateY(3px);box-shadow:0 1px 0 #1d2534}
+.btn small{display:block;font-size:10px;font-weight:600;margin-top:3px;opacity:.9}
+.btn.p{background:#d04a2b;box-shadow:0 4px 0 #7a2716}
+.btn.s{background:#e0a81c;box-shadow:0 4px 0 #7a5a0c;color:#221a00}
+.btn.s.off{opacity:.3}
+.btn.s.ready{animation:glow 1s ease-in-out infinite}
+@keyframes glow{50%{filter:brightness(1.35)}}
+#ring{flex:1 1 auto;min-height:0;max-height:270px;position:relative;
 display:flex;justify-content:space-between;
-align-items:flex-end;padding:0 4px 26px;
+align-items:flex-end;padding:0 4px 22px;
 background:radial-gradient(60% 70% at 50% 40%,#2b3446,#141a26 70%)}
-#ring::after{content:"";position:absolute;left:0;right:0;bottom:0;height:26px;
+#ring::after{content:"";position:absolute;left:0;right:0;bottom:0;height:22px;
 background:#3a2a22;border-top:3px solid #6b4a37}
-.side{position:relative}
-.side.cpu{transform:scaleX(-1)}
+.side{position:relative;transform:scale(.82);transform-origin:50% 100%}
+.side.cpu{transform:scale(-.82,.82)}
 .boxer{position:relative;width:118px;height:196px}
 .head{position:absolute;left:24px;top:2px;width:54px;height:54px;border-radius:50%;
 background:#e6b287;border:3px solid #00000033;transition:transform .12s;z-index:2}
@@ -68,40 +83,47 @@ background:#e23b3b;border:3px solid #00000044;z-index:4;transition:transform .09
 .boxer.ko .head{transform:translate(-18px,-74px) rotate(32deg);
 transition:transform .45s cubic-bezier(.3,-0.4,.5,1.4)}
 .boxer.ko .hair{opacity:0}
-#msg{position:absolute;left:0;right:0;top:30%;text-align:center;font-size:30px;
-font-weight:800;letter-spacing:3px;text-shadow:0 3px 0 #000;pointer-events:none;opacity:0;
-transition:opacity .15s}
-#msg.on{opacity:1}
-#ctrl{display:flex;gap:8px;padding:10px 10px calc(10px + env(safe-area-inset-bottom,0px))}
-.btn{flex:1;min-height:64px;padding:12px 0;font-size:17px;font-weight:700;color:#fff;border:none;
-border-radius:14px;background:#38445c;box-shadow:0 4px 0 #1d2534;transition:opacity .2s}
-.btn:active{transform:translateY(3px);box-shadow:0 1px 0 #1d2534}
-.btn small{display:block;font-size:10px;font-weight:600;margin-top:3px;opacity:.9}
-#bP{background:#d04a2b;box-shadow:0 4px 0 #7a2716}
-#bS{background:#e0a81c;box-shadow:0 4px 0 #7a5a0c;color:#221a00}
-#bS.off{opacity:.3}
-#bS.ready{animation:glow 1s ease-in-out infinite}
-@keyframes glow{50%{filter:brightness(1.35)}}
-#over{position:absolute;inset:0;background:#000000cc;display:flex;
-flex-direction:column;align-items:center;justify-content:center;gap:18px;z-index:9}
+.info{position:absolute;left:0;right:0;text-align:center;font-size:12px;
+letter-spacing:2px;opacity:.85;z-index:5}
+#info1{top:30px}
+#info2{top:6px;transform:rotate(180deg)}
+.msg{position:absolute;left:0;right:0;text-align:center;font-size:26px;font-weight:800;
+letter-spacing:2px;text-shadow:0 3px 0 #000;pointer-events:none;opacity:0;
+transition:opacity .15s;z-index:7}
+.msg.on{opacity:1}
+#msg1{top:46%}
+#msg2{top:16%;transform:rotate(180deg)}
+body:not(.vs) #info2,body:not(.vs) #msg2{display:none}
+body:not(.vs) #info1{top:8px}
+body:not(.vs) #msg1{top:32%}
+#over{position:fixed;inset:0;background:#000000d9;display:flex;
+flex-direction:column;align-items:center;justify-content:center;gap:16px;z-index:20}
 #over h1{margin:0;font-size:30px;letter-spacing:4px}
+#over h1.flip{transform:rotate(180deg);margin-bottom:40px}
 #over p{margin:0;font-size:13px;opacity:.8;text-align:center;line-height:1.7}
-#start{padding:16px 40px;font-size:18px;font-weight:700;border:none;border-radius:999px;
+.mode{width:200px;padding:15px 0;font-size:18px;font-weight:700;border:none;border-radius:999px;
 background:#ffd24a;color:#222}
+.mode.vsb{background:#ff7a5a;color:#fff}
 </style>
 </head>
 <body>
-<header>
-  <div class="row"><span class="lbl">YOU</span>
-    <div class="bar"><i id="phpF"></i></div></div>
-  <div class="row"><span class="lbl"></span>
-    <div class="bar" id="stBar"><i id="stF"></i></div></div>
-  <div class="row"><span class="lbl">CPU</span>
-    <div class="bar"><i id="chpF"></i></div></div>
-  <div id="info">ROUND 1　　1:30</div>
-</header>
+<div class="panel" id="pan2">
+  <div class="hud">
+    <div class="row"><span class="lbl" id="n2">CPU</span>
+      <div class="bar"><i class="hp red" id="hp2"></i></div></div>
+    <div class="row strow"><span class="lbl"></span>
+      <div class="bar st"><i class="stf" id="st2"></i></div></div>
+  </div>
+  <div class="ctrl">
+    <button class="btn g" data-p="2" data-a="g">ガード</button>
+    <button class="btn s off" data-p="2" data-a="s" id="bS2">渾身<small id="si2"></small></button>
+    <button class="btn p" data-p="2" data-a="p">パンチ</button>
+  </div>
+</div>
 
 <div id="ring">
+  <div class="info" id="info2"></div>
+  <div class="info" id="info1"></div>
   <div class="side"><div class="boxer idle" id="pB">
     <div class="dzm"><b>✦</b><b>✦</b></div>
     <div class="hair"></div><div class="head"></div>
@@ -114,52 +136,70 @@ background:#ffd24a;color:#222}
     <div class="torso"></div><div class="legs"></div>
     <div class="glove gl"></div><div class="glove gr"></div>
   </div></div>
-  <div id="msg"></div>
-  <div id="over">
-    <h1>BOXING</h1>
-    <p>パンチ2 / カウンター6+めまい<br>ガードされると1秒めまい<br>渾身15(命中10回かガード2回で解放)<br>3ラウンド各90秒</p>
-    <button id="start">試合開始</button>
+  <div class="msg" id="msg2"></div>
+  <div class="msg" id="msg1"></div>
+</div>
+
+<div class="panel" id="pan1">
+  <div class="hud">
+    <div class="row"><span class="lbl" id="n1">YOU</span>
+      <div class="bar"><i class="hp blue" id="hp1"></i></div></div>
+    <div class="row strow"><span class="lbl"></span>
+      <div class="bar st"><i class="stf" id="st1"></i></div></div>
+  </div>
+  <div class="ctrl">
+    <button class="btn g" data-p="1" data-a="g">ガード</button>
+    <button class="btn s off" data-p="1" data-a="s" id="bS1">渾身<small id="si1"></small></button>
+    <button class="btn p" data-p="1" data-a="p">パンチ</button>
   </div>
 </div>
 
-<div id="ctrl">
-  <button class="btn" id="bG">ガード</button>
-  <button class="btn off" id="bS">渾身<small id="sInfo">命中0/10 防御0/2</small></button>
-  <button class="btn" id="bP">パンチ</button>
+<div id="over">
+  <h1>BOXING</h1>
+  <p>パンチ2 / カウンター6+めまい<br>ガードされると1秒めまい<br>渾身15(命中10回かガード2回で解放)<br>3ラウンド各90秒</p>
+  <button class="mode" id="mCpu">CPU対戦</button>
+  <button class="mode vsb" id="mVs">2人対戦</button>
 </div>
 
 <script>
 const $=i=>document.getElementById(i);
 const DMG=2,COUNTER=6,SMASH=15,DIZZY=1000,ROUND_TIME=90;
 const NEED_HIT=10,NEED_GUARD=2;
-function fighter(node){return{hp:100,st:'idle',until:0,cd:0,next:0,stam:100,
-  hits:0,guards:0,used:false,alt:false,node:node};}
-const P=fighter($('pB'));
-const C=fighter($('cB'));
-let running=false,round=1,time=ROUND_TIME;
+function fighter(node,id,name){return{hp:100,st:'idle',until:0,cd:0,next:0,stam:100,
+  hits:0,guards:0,used:false,alt:false,node:node,id:id,name:name};}
+const P=fighter($('pB'),1,'青');
+const C=fighter($('cB'),2,'赤');
+P.opp=C;C.opp=P;
+let running=false,round=1,time=ROUND_TIME,mode='cpu';
 
 function draw(f){f.node.className='boxer '+f.st;}
 function bars(){
-  $('phpF').style.width=P.hp+'%';
-  $('chpF').style.width=C.hp+'%';
-  $('stF').style.width=P.stam+'%';
+  $('hp1').style.width=P.hp+'%';
+  $('hp2').style.width=C.hp+'%';
+  $('st1').style.width=P.stam+'%';
+  $('st2').style.width=C.stam+'%';
 }
 function info(){
   const s=Math.max(0,Math.ceil(time));
-  $('info').textContent='ROUND '+round+'　　'+Math.floor(s/60)+':'+String(s%60).padStart(2,'0');
+  const t='ROUND '+round+'　　'+Math.floor(s/60)+':'+String(s%60).padStart(2,'0');
+  $('info1').textContent=t;$('info2').textContent=t;
 }
 let msgT;
 function msg(t,ms){
-  $('msg').textContent=t;$('msg').classList.add('on');
-  clearTimeout(msgT);msgT=setTimeout(()=>$('msg').classList.remove('on'),ms||700);
+  ['msg1','msg2'].forEach(k=>{$(k).textContent=t;$(k).classList.add('on');});
+  clearTimeout(msgT);
+  msgT=setTimeout(()=>{$('msg1').classList.remove('on');$('msg2').classList.remove('on');},ms||700);
 }
+function say(cpuText,vsText,ms){msg(mode==='cpu'?cpuText:vsText,ms);}
 function canSmash(f){return !f.used&&(f.hits>=NEED_HIT||f.guards>=NEED_GUARD);}
 function updBtn(){
-  const ok=canSmash(P);
-  $('bS').classList.toggle('off',!ok);
-  $('bS').classList.toggle('ready',ok);
-  $('sInfo').textContent=P.used?'使用済み':ok?'OK!':
-    '命中'+Math.min(P.hits,NEED_HIT)+'/'+NEED_HIT+' 防御'+Math.min(P.guards,NEED_GUARD)+'/'+NEED_GUARD;
+  [P,C].forEach(f=>{
+    const ok=canSmash(f);
+    $('bS'+f.id).classList.toggle('off',!ok);
+    $('bS'+f.id).classList.toggle('ready',ok);
+    $('si'+f.id).textContent=f.used?'使用済み':ok?'OK!':
+      '命中'+Math.min(f.hits,NEED_HIT)+'/'+NEED_HIT+' 防御'+Math.min(f.guards,NEED_GUARD)+'/'+NEED_GUARD;
+  });
 }
 function ready(f){return running&&f.st==='idle'&&performance.now()>=f.cd;}
 
@@ -174,7 +214,7 @@ function hit(t,src,kind){
   const now=performance.now();
   if(t.st==='gd'){
     t.guards++;
-    msg(src===P?'ガードされた!':'ガード成功!',600);
+    say(src===P?'ガードされた!':'ガード成功!',t.name+' ガード成功!',600);
     dizzy(src);
     updBtn();
     return;
@@ -183,11 +223,11 @@ function hit(t,src,kind){
   let d;
   if(kind==='s'){
     d=SMASH;
-    msg(src===P?'渾身ヒット!':'渾身被弾!',800);
+    say(src===P?'渾身ヒット!':'渾身被弾!',src.name+' 渾身ヒット!',800);
   }else{
     src.hits++;
     d=counter?COUNTER:DMG;
-    if(counter)msg(src===P?'カウンター!':'カウンター被弾!',700);
+    if(counter)say(src===P?'カウンター!':'カウンター被弾!',src.name+' カウンター!',700);
   }
   t.hp=Math.max(0,t.hp-d);
   if(counter){
@@ -201,45 +241,48 @@ function hit(t,src,kind){
 function ko(t){
   running=false;
   t.st='ko';draw(t);
-  setTimeout(()=>finish(t===C?'K.O. 勝利!':'K.O. 負け...'),500);
+  const text=mode==='cpu'?(t===C?'K.O. 勝利!':'K.O. 負け...'):t.opp.name+'のK.O.勝ち!';
+  setTimeout(()=>finish(text),500);
 }
 function finish(text){
-  $('over').style.display='flex';
-  $('over').innerHTML='<h1>'+text+'</h1><button id="start">もう一度</button>';
-  $('start').onclick=()=>location.reload();
+  const o=$('over');
+  o.style.display='flex';
+  o.innerHTML=(mode==='vs'?'<h1 class="flip">'+text+'</h1>':'')+
+    '<h1>'+text+'</h1><button class="mode" id="again">もう一度</button>';
+  $('again').onclick=()=>location.reload();
 }
 
-function punch(){
-  if(!ready(P))return;
-  const now=performance.now();
-  P.alt=!P.alt;
-  const type=P.alt?'pl':'pr';
-  P.st=type;P.until=now+300;draw(P);
-  P.cd=P.until+60;
-  if(C.st==='idle'&&Math.random()<(C.hp<40?0.36:0.24)){
-    C.st='gd';C.until=now+320;draw(C);C.next=C.until+150;
-  }
-  setTimeout(()=>{if(P.st===type)hit(C,P,'n');},130);
+function cpuReact(f,now,chance,dur){
+  if(mode!=='cpu'||f!==P||C.st!=='idle')return;
+  if(Math.random()<chance){C.st='gd';C.until=now+dur;draw(C);C.next=C.until+150;}
 }
-function smash(){
-  if(!ready(P)||!canSmash(P))return;
-  const now=performance.now();
-  P.used=true;updBtn();
-  P.st='sc';P.until=now+1000;draw(P);
-  P.cd=now+260+380+100;
-  if(C.st==='idle'&&Math.random()<0.4){
-    C.st='gd';C.until=now+520;draw(C);C.next=C.until+150;
-  }
+function punch(f){
+  if(!ready(f))return;
+  const now=performance.now(),o=f.opp;
+  f.alt=!f.alt;
+  const type=f.alt?'pl':'pr';
+  f.st=type;f.until=now+300;draw(f);
+  f.cd=f.until+60;
+  cpuReact(f,now,C.hp<40?0.36:0.24,320);
+  setTimeout(()=>{if(f.st===type)hit(o,f,'n');},130);
+}
+function smash(f){
+  if(!ready(f)||!canSmash(f))return;
+  const now=performance.now(),o=f.opp;
+  f.used=true;updBtn();
+  f.st='sc';f.until=now+1000;draw(f);
+  f.cd=now+260+380+100;
+  cpuReact(f,now,0.4,520);
   setTimeout(()=>{
-    if(P.st!=='sc')return;
-    P.st='sp';P.until=performance.now()+380;draw(P);
-    setTimeout(()=>{if(P.st==='sp')hit(C,P,'s');},120);
+    if(f.st!=='sc')return;
+    f.st='sp';f.until=performance.now()+380;draw(f);
+    setTimeout(()=>{if(f.st==='sp')hit(o,f,'s');},120);
   },260);
 }
-function guard(){
-  if(!ready(P)||P.stam<25)return;
+function guard(f){
+  if(!ready(f)||f.stam<25)return;
   const now=performance.now();
-  P.stam-=30;P.st='gd';P.until=now+600;P.cd=P.until+90;draw(P);bars();
+  f.stam-=30;f.st='gd';f.until=now+600;f.cd=f.until+90;draw(f);bars();
 }
 
 function cpuSmash(now,ag){
@@ -274,7 +317,11 @@ function ai(now){
 function endRound(){
   running=false;
   if(round>=3){
-    setTimeout(()=>finish(P.hp>C.hp?'判定勝ち!':P.hp<C.hp?'判定負け...':'ドロー'),300);
+    let text;
+    if(P.hp===C.hp)text='ドロー';
+    else if(mode==='cpu')text=P.hp>C.hp?'判定勝ち!':'判定負け...';
+    else text=(P.hp>C.hp?P:C).name+'の判定勝ち!';
+    setTimeout(()=>finish(text),300);
     return;
   }
   msg('ROUND '+round+' 終了',1200);
@@ -282,10 +329,9 @@ function endRound(){
     round++;time=ROUND_TIME;
     [P,C].forEach(f=>{
       f.hp=Math.min(100,f.hp+10);
-      f.hits=0;f.guards=0;f.used=false;
+      f.hits=0;f.guards=0;f.used=false;f.stam=100;
       f.st='idle';f.cd=0;f.next=0;draw(f);
     });
-    P.stam=100;
     bars();info();updBtn();msg('ROUND '+round,900);
     running=true;
   },1500);
@@ -295,21 +341,35 @@ setInterval(()=>{
   const now=performance.now();
   [P,C].forEach(f=>{
     if(f.st!=='idle'&&f.st!=='ko'&&now>f.until){f.st='idle';draw(f);}
+    if(f.st!=='gd'&&f.stam<100)f.stam=Math.min(100,f.stam+1.2);
   });
-  if(P.st!=='gd'&&P.stam<100){P.stam=Math.min(100,P.stam+1.2);bars();}
+  bars();
   if(running){
-    ai(now);
+    if(mode==='cpu')ai(now);
     time-=0.04;info();
     if(time<=0)endRound();
   }
 },40);
 
-$('bG').addEventListener('pointerdown',e=>{e.preventDefault();guard()});
-$('bS').addEventListener('pointerdown',e=>{e.preventDefault();smash()});
-$('bP').addEventListener('pointerdown',e=>{e.preventDefault();punch()});
-$('start').onclick=()=>{
-  $('over').style.display='none';running=true;msg('FIGHT!',800);
-};
+document.querySelectorAll('.btn').forEach(b=>{
+  b.addEventListener('pointerdown',e=>{
+    e.preventDefault();
+    const f=b.dataset.p==='1'?P:C;
+    if(f===C&&mode==='cpu')return;
+    const a=b.dataset.a;
+    if(a==='g')guard(f);else if(a==='s')smash(f);else punch(f);
+  });
+});
+function start(m){
+  mode=m;
+  document.body.classList.toggle('vs',m==='vs');
+  $('n1').textContent=m==='vs'?'BLUE':'YOU';
+  $('n2').textContent=m==='vs'?'RED':'CPU';
+  $('over').style.display='none';
+  running=true;msg('FIGHT!',800);
+}
+$('mCpu').onclick=()=>start('cpu');
+$('mVs').onclick=()=>start('vs');
 bars();info();updBtn();
 </script>
 </body>
